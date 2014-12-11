@@ -1,0 +1,9 @@
+[Unit]
+Description=LED lightings
+
+[Service]
+ExecStart=/usr/bin/python "/home/jheka/raspberrypi/gpio01.py"
+
+[Install]
+WantedBy=default.target
+
