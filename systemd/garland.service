@@ -2,8 +2,7 @@
 Description=LED lightings
 
 [Service]
-ExecStart=/usr/bin/python "/home/jheka/raspberrypi/gpio01.py"
+ExecStart=/usr/bin/python "/home/jheka/raspberry-led-garland/garland.py"
 
 [Install]
 WantedBy=default.target
-
