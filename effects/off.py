@@ -1,4 +1,3 @@
-import time
 import RPi.GPIO as GPIO
 
 class GarlandEffect(object):
@@ -9,4 +8,4 @@ class GarlandEffect(object):
         self.garland.gpioOutSetState()
  
     def iterate(self):
-        time.sleep(1)
+        pass

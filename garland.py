@@ -22,8 +22,13 @@ class Garland(object):
     button = {}
     effects = []
     currentEffectIndex = ''
+    iterationDelay = 0.05
+    previousIterationTimestamp = 0
+    previousButtonState = 0
 
     def __init__(self, leds, button, effects):
+        print("%s Started" % time.strftime('%x %X %Z'))
+
         GPIO.setmode(GPIO.BOARD)
 
         self.leds = leds
@@ -52,19 +57,41 @@ class Garland(object):
     def gpioCleanup(self):
         self.gpioLedsOff()
         GPIO.cleanup()
+        print("%s Ended" % time.strftime('%x %X %Z'))
 
     def getCurrentEffect(self):
         currentEffect = self.effects[self.currentEffectIndex]
-        print("Set effect: %s" % currentEffect)
+        print("%s Set effect: %s" % (time.strftime('%x %X %Z'), currentEffect))
         return currentEffect
 
-    def getNextEffect(self):
+    def gotoNextEffect(self):
         nextEffectIndex = self.currentEffectIndex + 1
         if nextEffectIndex >= len(self.effects):
             nextEffectIndex = 0;
         self.currentEffectIndex = nextEffectIndex
 
         return self.getCurrentEffect()
+
+    def changeIterationTimestamp(self):
+        self.previousIterationTimestamp = time.time()
+
+    def checkIterationDelay(self, delay):
+        if self.previousIterationTimestamp + delay <= time.time():
+            return True
+
+        return False
+
+    def isButtonWasPressed(self):
+        if not GPIO.input(self.button['num']) and self.previousButtonState == 0:
+            self.previousButtonState = 1
+            return True;
+        elif GPIO.input(self.button['num']) and self.previousButtonState == 1:
+            self.previousButtonState = 0
+
+        return False;
+
+    def resetIterationTimestamp(self):
+        self.previousIterationTimestamp = 0
 
 if __name__ == '__main__':
     # Kill/keyboard interrupt signal handling
@@ -86,11 +113,14 @@ if __name__ == '__main__':
 
     while 1:
         # Effect iteration
-        effect.iterate()
+        if effect.iterate():
+            effect.garland.changeIterationTimestamp()
+        time.sleep(effect.garland.iterationDelay)
 
         # Button handling
-        if GPIO.input(garland.button['num']) == False:
+        if effect.garland.isButtonWasPressed():
             garland.gpioLedsOff()
-            effect = globals()[garland.getNextEffect()].GarlandEffect(garland)
+            garland.resetIterationTimestamp()
+            effect = globals()[garland.gotoNextEffect()].GarlandEffect(garland)
 
     garland.gpioCleanup()

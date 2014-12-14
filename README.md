@@ -11,6 +11,11 @@ Copy `raspberry-led-garland` directory to the `/opt/raspberry-led-garland` or cr
 sudo ln -s /home/jheka/raspberry-led-garland /opt/raspberry-led-garland
 ```
 
+Configuring
+-----------
+Configure your GPIO LED ports and change effects button port at the `settings.json` file.
+You can also change effects list.
+
 Running
 -------
 ```

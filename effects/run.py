@@ -1,4 +1,3 @@
-import time
 import RPi.GPIO as GPIO
 
 class GarlandEffect(object):
@@ -12,8 +11,10 @@ class GarlandEffect(object):
         self.currentLedIndex = 0
 
     def iterate(self):
+        if not self.garland.checkIterationDelay(self.delay):
+            return False
+
         self.garland.gpioOutSetState()
-        time.sleep(self.delay)
         for index, led in enumerate(self.garland.leds):
             if index == self.currentLedIndex:
                 led['state'] = 1
@@ -22,3 +23,5 @@ class GarlandEffect(object):
         self.currentLedIndex += 1
         if self.currentLedIndex >= self.ledscount:
             self.currentLedIndex = 0
+
+        return True
