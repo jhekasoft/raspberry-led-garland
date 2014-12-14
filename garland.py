@@ -1,14 +1,27 @@
+#!/usr/bin/env python
+#title           :garland.py
+#description     :LED garland driver.
+#author          :jhekasoft
+#date            :20141214
+#version         :0.2
+#usage           :python3 garland.py
+#notes           :
+#python_version  :3.4
+#==============================================================================
+
 import RPi.GPIO as GPIO
 import time
 import random
 import sys
+import os
+import json
 from effects import *
 
 class Garland(object):
     leds = []
     button = {}
     effects = []
-    currentEffect = ''
+    currentEffectIndex = ''
 
     def __init__(self, leds, button, effects):
         GPIO.setmode(GPIO.BOARD)
@@ -16,7 +29,7 @@ class Garland(object):
         self.leds = leds
         self.button = button
         self.effects = effects
-        self.currentEffect = self.effects[0]
+        self.currentEffectIndex = 0
 
         GPIO.setup(self.button['num'], GPIO.IN)
         for led in self.leds:
@@ -39,25 +52,24 @@ class Garland(object):
         GPIO.cleanup()
 
     def getCurrentEffect(self):
-        print("Set effect: %s" % self.currentEffect)
-        return self.currentEffect
+        currentEffect = self.effects[self.currentEffectIndex]
+        print("Set effect: %s" % currentEffect)
+        return currentEffect
 
     def getNextEffect(self):
-        currentEffectIndex = self.effects.index(self.currentEffect)
-        nextEffectIndex = currentEffectIndex + 1
+        nextEffectIndex = self.currentEffectIndex + 1
         if nextEffectIndex >= len(self.effects):
             nextEffectIndex = 0;
-        self.currentEffect = self.effects[nextEffectIndex]
+        self.currentEffectIndex = nextEffectIndex
 
         return self.getCurrentEffect()
 
 if __name__ == '__main__':
     try:
-        garland = Garland(
-            [{'num': 8, 'state': 0}, {'num': 11, 'state': 0}, {'num': 12, 'state': 0}, {'num': 13, 'state': 0}, {'num': 15, 'state': 0}, {'num': 16, 'state': 0}],
-            {'num': 5},
-            ['fast_run', 'static', 'blink', 'slow_blink', 'fast_blink', 'run', 'off']
-        )
+        jsonSettingsData = open(os.path.dirname(os.path.realpath(__file__))+'/settings.json')
+        settings = json.load(jsonSettingsData)
+
+        garland = Garland(settings['leds'], settings['button'], settings['effects'])
 
         garland.gpioLedsOff()
 
