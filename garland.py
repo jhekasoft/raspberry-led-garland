@@ -11,9 +11,9 @@
 
 import RPi.GPIO as GPIO
 import time
-import random
 import sys
 import os
+import signal
 import json
 from effects import *
 
@@ -34,6 +34,8 @@ class Garland(object):
         GPIO.setup(self.button['num'], GPIO.IN)
         for led in self.leds:
             GPIO.setup(led['num'], GPIO.OUT)
+
+        self.gpioLedsOff()
 
     def setLedsState(self, state):
         for led in self.leds:
@@ -65,28 +67,30 @@ class Garland(object):
         return self.getCurrentEffect()
 
 if __name__ == '__main__':
-    try:
-        jsonSettingsData = open(os.path.dirname(os.path.realpath(__file__))+'/settings.json')
-        settings = json.load(jsonSettingsData)
-
-        garland = Garland(settings['leds'], settings['button'], settings['effects'])
-
-        garland.gpioLedsOff()
-
-        # effect init
-        #effect = effects.blink.GarlandEffect(garland)
-        effect = globals()[garland.getCurrentEffect()].GarlandEffect(garland)
-
-        #while GPIO.input(garland.button['num']):
-        while 1:
-            # effect iteration
-            effect.iterate()
-
-            if GPIO.input(garland.button['num']) == False:
-                garland.gpioLedsOff()
-                effect = globals()[garland.getNextEffect()].GarlandEffect(garland)
-
+    # Kill/keyboard interrupt signal handling
+    def signal_handler(signal, frame):
         garland.gpioCleanup()
+        sys.exit(0)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
-    except KeyboardInterrupt:
-        garland.gpioCleanup()
+    # Loading config from JSON-file
+    jsonSettingsData = open(os.path.dirname(os.path.realpath(__file__))+'/settings.json')
+    settings = json.load(jsonSettingsData)
+
+    # Garland init
+    garland = Garland(settings['leds'], settings['button'], settings['effects'])
+
+    # Effect init
+    effect = globals()[garland.getCurrentEffect()].GarlandEffect(garland)
+
+    while 1:
+        # Effect iteration
+        effect.iterate()
+
+        # Button handling
+        if GPIO.input(garland.button['num']) == False:
+            garland.gpioLedsOff()
+            effect = globals()[garland.getNextEffect()].GarlandEffect(garland)
+
+    garland.gpioCleanup()

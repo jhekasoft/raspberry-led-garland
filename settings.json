@@ -8,5 +8,5 @@
         {"num": 16, "state": 0}
     ],
     "button": {"num": 5},
-    "effects": ["blink", "fast_run", "static", "blink", "slow_blink", "fast_blink", "run", "off"]
+    "effects": ["static", "blink", "slow_blink", "fast_blink", "run", "fast_run", "off"]
 }
