@@ -6,6 +6,6 @@ class GarlandEffect(object):
         self.garland = garland
         self.garland.setLedsState(1)
         self.garland.gpioOutSetState()
- 
+
     def iterate(self):
         pass

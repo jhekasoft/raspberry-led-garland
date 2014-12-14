@@ -8,5 +8,6 @@
         {"num": 16, "state": 0}
     ],
     "button": {"num": 5},
-    "effects": ["static", "blink", "slow_blink", "fast_blink", "run", "fast_run", "off"]
+    "effects": ["static", "blink", "slow_blink", "fast_blink", "run", "fast_run", "off"],
+    "logfile": "/var/log/raspberry-led-garland.log"
 }

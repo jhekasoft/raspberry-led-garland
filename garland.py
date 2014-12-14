@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-#title           :garland.py
-#description     :LED garland driver.
-#author          :jhekasoft
-#date            :20141214
-#version         :0.2
-#usage           :python3 garland.py
-#notes           :
-#python_version  :3.4
-#==============================================================================
+
+__author__     = "Evgeniy Efremov"
+__copyright__  = "Copyright 2014, jhekasoft"
+__credits__    = ["Evgeniy Efremov"]
+__license__    = "GPL"
+__version__    = "0.3"
+__maintainer__ = "Evgeniy Efremov"
+__email__      = "jheka@mail.ru"
 
 import RPi.GPIO as GPIO
 import time
 import sys
 import os
 import signal
+import logging
 import json
 from effects import *
 
@@ -26,8 +26,12 @@ class Garland(object):
     previousIterationTimestamp = 0
     previousButtonState = 0
 
-    def __init__(self, leds, button, effects):
-        print("%s Started" % time.strftime('%x %X %Z'))
+    def __init__(self, leds, button, effects, logger = None):
+        self.logger = logger
+
+        # Logging
+        if (self.logger):
+            self.logger.info("Started")
 
         GPIO.setmode(GPIO.BOARD)
 
@@ -57,11 +61,18 @@ class Garland(object):
     def gpioCleanup(self):
         self.gpioLedsOff()
         GPIO.cleanup()
-        print("%s Ended" % time.strftime('%x %X %Z'))
+
+        # Logging
+        if (self.logger):
+            self.logger.info("Ended")
 
     def getCurrentEffect(self):
         currentEffect = self.effects[self.currentEffectIndex]
-        print("%s Set effect: %s" % (time.strftime('%x %X %Z'), currentEffect))
+
+        # Logging
+        if (self.logger):
+            self.logger.info("Set effect: %s" % currentEffect)
+
         return currentEffect
 
     def gotoNextEffect(self):
@@ -84,6 +95,11 @@ class Garland(object):
     def isButtonWasPressed(self):
         if not GPIO.input(self.button['num']) and self.previousButtonState == 0:
             self.previousButtonState = 1
+
+            # Logging
+            if (self.logger):
+                self.logger.info("Ended")
+
             return True;
         elif GPIO.input(self.button['num']) and self.previousButtonState == 1:
             self.previousButtonState = 0
@@ -105,8 +121,17 @@ if __name__ == '__main__':
     jsonSettingsData = open(os.path.dirname(os.path.realpath(__file__))+'/settings.json')
     settings = json.load(jsonSettingsData)
 
+    # Logger
+    logging.basicConfig(level = logging.INFO)
+    logger = logging.getLogger(__name__)
+    handler = logging.FileHandler(settings['logfile'])
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
     # Garland init
-    garland = Garland(settings['leds'], settings['button'], settings['effects'])
+    garland = Garland(settings['leds'], settings['button'], settings['effects'], logger)
 
     # Effect init
     effect = globals()[garland.getCurrentEffect()].GarlandEffect(garland)
