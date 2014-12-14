@@ -1,7 +1,8 @@
 import time
 import RPi.GPIO as GPIO
 
-class GarlandEffect:
+class GarlandEffect(object):
+    delay = 1.0
     ledscount = 0
     currentLedNum = 0
 
@@ -12,7 +13,7 @@ class GarlandEffect:
 
     def iterate(self):
         self.garland.gpioOutSetState()
-        time.sleep(1)
+        time.sleep(self.delay)
         for led in self.garland.leds:
             if self.garland.leds.index(led) == self.currentLedNum:
                 led['state'] = 1

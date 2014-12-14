@@ -56,7 +56,7 @@ if __name__ == '__main__':
         garland = Garland(
             [{'num': 8, 'state': 0}, {'num': 11, 'state': 0}, {'num': 12, 'state': 0}, {'num': 13, 'state': 0}, {'num': 15, 'state': 0}, {'num': 16, 'state': 0}],
             {'num': 5},
-            ['static', 'blink', 'run', 'off']
+            ['fast_run', 'static', 'blink', 'slow_blink', 'fast_blink', 'run', 'off']
         )
 
         garland.gpioLedsOff()

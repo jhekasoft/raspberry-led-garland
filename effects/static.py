@@ -1,7 +1,7 @@
 import time
 import RPi.GPIO as GPIO
 
-class GarlandEffect:
+class GarlandEffect(object):
 
     def __init__(self, garland):
         self.garland = garland
