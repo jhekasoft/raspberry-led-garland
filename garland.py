@@ -98,7 +98,7 @@ class Garland(object):
 
             # Logging
             if (self.logger):
-                self.logger.info("Ended")
+                self.logger.info("Button was pressed")
 
             return True;
         elif GPIO.input(self.button['num']) and self.previousButtonState == 1:
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     # Logger
     logging.basicConfig(level = logging.INFO)
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger('garland')
     handler = logging.FileHandler(settings['logfile'])
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
